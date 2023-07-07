@@ -65,6 +65,7 @@ function renderBlocks(moveType = "") {
     // 테트리스 블록이 움직일 때, 이전 요소 위치의 컬러(CSS 효과)를 없앤다.
   });
   BLOCKS[type][direction].some((block) => {
+    // forEach를 사용할 경우, 반복문을 중간에 멈출 수 없기 때문에 some을 사용
     // BLOCK -> type -> dirention
     const x = block[0] + left;
     const y = block[1] + top;
@@ -89,6 +90,7 @@ function renderBlocks(moveType = "") {
         }
       }, 0);
       return true;
+      // 만약에 빈값이 있게 되면, return true;를 시켜서 나머지는 굳이 돌리지 않고, 새롭게 renderBlocks를 시작할 수 있게 함
     }
   });
   // 제대로 작동한다면
@@ -113,10 +115,12 @@ function checkMatch() {
     let matched = true;
     child.children[0].childNodes.forEach((li) => {
       if (!li.classList.contains("seized")) {
+        // 하나라도 빈 칸이 있다면 false
         matched = false;
       }
     });
     if (matched) {
+      // 한 줄이 완성되면
       child.remove();
       prependNewLine();
       score++;
@@ -129,16 +133,20 @@ function checkMatch() {
 
 function generateNewBlock() {
   clearInterval(downInterval);
+  // 진행 중인 인터벌을 꺼 주기 위함
   downInterval = setInterval(() => {
     moveBlock("top", 1);
   }, duration);
 
   const blockArr = Object.entries(BLOCKS);
+  // object 반복문 돌리기 위해 사용 - Object.entries()
+  // object로 돼 있기 때문에 BLOCKS를 직접 사용할 수 없음
   const randomIndex = Math.floor(Math.random() * blockArr.length);
 
   movingItem.type = blockArr[randomIndex][0];
   movingItem.top = 0;
   movingItem.left = 3;
+  movingItem.direction = 0;
   tempMovingItem = { ...movingItem };
   renderBlocks();
 }
@@ -146,7 +154,11 @@ function generateNewBlock() {
 function checkEmpty(target) {
   // 가능 여부 확인 후, isAvilable에 전달
   if (!target || target.classList.contains("seized")) {
+    // contains 클래스 유무 여부를 확인해 주는 메서드
     return false;
+    // target에 seized 클래스를 갖고 있음을 확인하면,
+    // '빈 값이 아니다'라고 알리는 false를 넘겨서
+    // '가능하지 않다'를 할 수 있도록 함 (블록이 바닥에 닿으면 멈추게 함)
   }
   return true;
 }
@@ -161,9 +173,9 @@ function moveBlock(moveType, amount) {
 function changeDirection() {
   const direction = tempMovingItem.direction;
   direction === 3
-    ? (tempMovingItem.direction = 0)
-    : (tempMovingItem.direction += 1);
-  renderBlocks();
+    ? (tempMovingItem.direction = 0) // 3이면 0으로 초기화
+    : (tempMovingItem.direction += 1); // 아니라면 1씩 증가
+  renderBlocks(); // 다시 실행해 줘야 작동함
 }
 
 function dropBlock() {
